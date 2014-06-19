@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base:TiInvisibleCube xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"  width="400" height="300" xmlns:base="base.*" creationComplete="ticube1_creationCompleteHandler(event)" xmlns:local="*" xmlns:ui="ui.*">
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			protected function ticube1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				m_bCubeFall = true;
+				mcInvisible.gotoAndStop(1);
+			}
+			
+		
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<local:h1_break id="mcInvisible" visible="false"/>
+</base:TiInvisibleCube>

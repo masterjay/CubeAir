@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" creationComplete="group1_creationCompleteHandler(event)" xmlns:monster="ui.monster.*" xmlns:local="*" xmlns:ui="ui.*">
+	<fx:Script>
+		<![CDATA[
+			import base.TiConvertValueToArray;
+			import base.TiMonster;
+			
+			import event.TiBattleEvent;
+			
+			import mx.events.FlexEvent;
+			public var m_mcMonster:TiMonster =new TiMonster();
+			public var m_mcHost:TiMonster =new TiMonster();
+			
+			protected function group1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+			
+			}
+			
+			public function fnMonsterAttactCountDownMinus():void
+			{
+				m_mcMonster.fnMonsterAttactCountDownMinus();
+			} 
+			
+			
+			public function fnShowToStage():void
+			{
+				m_mcMonster =null
+				monsterGp.removeAllElements()
+				if(TiMonsterConfig.m_nNextPoint == TiMonsterConfig.arMonsterList.length)
+				{
+						var ev:TiBattleEvent =new TiBattleEvent(TiBattleEvent.SUCCESS_EVENT)
+							dispatchEvent(ev);
+							return;
+				}
+				m_mcMonster =fnGetMonster( TiMonsterConfig.arMonsterList[TiMonsterConfig.m_nNextPoint])
+				m_mcMonster.addEventListener(TiBattleEvent.MONSTER_SUFFER_FINISH_EVENT,fnSufferFinishHandler);
+				m_mcMonster.addEventListener(TiBattleEvent.MONSTER_ATTACT_FINISH_EVENT,fnMonsterAttackFinishHandler);
+				m_mcMonster.addEventListener(TiBattleEvent.MONSTER_ATTACT_EVENT,fnMonsterAttackHandler);
+				m_mcMonster.addEventListener(TiBattleEvent.MONSTER_DIE_FINISH_EVENT,fnDieFinishHandler);
+				m_mcMonster.addEventListener(TiBattleEvent.SHOW_MONSTER_LIFE_EVENT,fnUpdateMonsterLife);
+				m_mcMonster.addEventListener(TiBattleEvent.MONSTER_HIT_HOST_EVENT,fnHitHostHandler);
+			}
+			
+			private function fnGetMonster(str:String):TiMonster
+			{
+				var monster:TiMonster
+				switch(str)
+				{
+					case TiMonsterConfig.MONSTER_SOLIDER:
+						monster =new MonsterSolider(); 
+					//	monster.x = mcSoliderGp.x
+					//	monster.y = mcSoliderGp.y
+						break;
+					case TiMonsterConfig.MONSTER_BOSS:
+						monster =new MonsterBoss()
+					//	monster.x =mcBossGp.x
+					//	monster.y =mcBossGp.y
+						break;
+					case TiMonsterConfig.MONSTER_DRAGON:
+						monster =new MonsterDragon()
+						break;
+				}
+				monster.addEventListener(TiBattleEvent.MONSTER_INIT_FINISH_EVENT,fnMonsterAddtoStage);
+				monsterGp.addElement(monster);
+			
+				return monster;
+			}
+			
+			private function fnMonsterAddtoStage(e:Event):void
+			{
+		 		m_mcMonster.fnShowtoStage();
+				if(TiMonsterConfig.m_nNextPoint ==2)
+				{
+					lifePoint.fnInitLife(m_mcMonster.m_nLife,true);
+					var ev:TiBattleEvent = new TiBattleEvent(TiBattleEvent.BOSS_STAGE);
+					dispatchEvent(ev);
+				}
+				else
+				{
+					lifePoint.fnInitLife(m_mcMonster.m_nLife,false);		
+				}
+			
+				TiMonsterConfig.m_nNextPoint++
+				if(TiMonsterConfig.m_nNextPoint==TiMonsterConfig.arMonsterList.length)
+				{
+				//	m_nNextPoint = 0;
+					
+				} 
+			}
+			
+			public function fnSuffer(nValue:int):void
+			{
+				m_mcMonster.fnSufferValue(nValue);
+				mcScore.fnScore(nValue);
+				
+			}
+			
+			public function fnHit():void
+			{
+				m_mcMonster.fnHit();
+			}
+			
+			public function fnHostAttackFinish():void
+			{
+				m_mcMonster.fnHostAttackFinish()
+				mcScore.fnShowDamageScore();
+			}
+			
+			private function fnSufferFinishHandler(e:Event):void
+			{
+				 var ev:TiBattleEvent = new TiBattleEvent(TiBattleEvent.MONSTER_SUFFER_FINISH_EVENT)
+					 dispatchEvent(ev);
+				 
+					 
+			}
+			
+			private function fnUpdateMonsterLife(e:TiBattleEvent):void
+			{
+				lifePoint.fnShowLife(m_mcMonster.m_nLife);
+			}
+			
+			private function fnMonsterAttackFinishHandler(e:Event):void
+			{
+				var ev:TiBattleEvent =new TiBattleEvent(TiBattleEvent.MONSTER_ATTACT_FINISH_EVENT)
+					dispatchEvent(ev);
+			}
+			
+			private function fnDieFinishHandler(e:TiBattleEvent):void
+			{
+				m_mcMonster.visible =false;
+				fnShowToStage()
+				var ev:TiBattleEvent = new TiBattleEvent(TiBattleEvent.MONSTER_DIE_FINISH_EVENT)
+				ev.m_eventArgs = e.m_eventArgs
+				dispatchEvent(ev);
+			}
+			
+			private function fnHitHostHandler(e:TiBattleEvent):void
+			{
+				var ev:TiBattleEvent =new TiBattleEvent(TiBattleEvent.MONSTER_HIT_HOST_EVENT);
+				dispatchEvent(ev);
+			}
+			
+			private function fnMonsterAttackHandler(e:TiBattleEvent):void
+			{
+				var ev:TiBattleEvent = new TiBattleEvent(TiBattleEvent.MONSTER_ATTACT_EVENT)
+				ev.m_eventArgs = e.m_eventArgs
+				dispatchEvent(ev);
+			}
+			
+			private function fnSuccess():void
+			{
+				var ev:TiBattleEvent =new TiBattleEvent(TiBattleEvent.SUCCESS_EVENT)
+					dispatchEvent(ev);
+			}
+				
+			public function fnClearMonster():void
+			{
+				monsterGp.removeAllElements()
+				m_mcMonster = null
+				lifePoint.fnResetLife();
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<!--<s:Group id="mcSoliderGp" visible="false" x="0" y="0"/>
+	<s:Group id="mcBossGp" visible="false" x="0" y="0"/>-->
+	<s:Group id="monsterGp"/>
+	<ui:LifePoint id="lifePoint" x="0" y="0" visible="true"/>
+	<ui:ScoreCo id="mcScore" x="324" y="400" visible="true"/>
+</s:Group>

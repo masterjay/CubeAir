@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" creationComplete="group1_creationCompleteHandler(event)" xmlns:local="*">
+	<fx:Script>
+		<![CDATA[
+			import base.TiConvertValueToArray;
+			
+			import mx.events.FlexEvent;
+			
+			private var m_removeTime:Timer =new Timer(2000,1)
+			private var m_dealyTime:Timer =new Timer(500,1)	
+			private var m_dealyTimeBatch:Timer =new Timer(100,1)	
+			private var m_Score:int  	
+			private var m_arNumber:Array;
+			private var m_index:int
+			protected function group1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				m_dealyTime.addEventListener(TimerEvent.TIMER_COMPLETE,fnShowScore)
+				m_dealyTimeBatch.addEventListener(TimerEvent.TIMER,fnShowDamageNumberByBatch);
+			}
+			
+			
+			public function fnScore(nValue:int):void
+			{
+				
+				m_Score = nValue
+			//	m_dealyTime.start();
+			}
+			
+			public function fnShowDamageScore():void
+			{
+				fnShowScore()
+			}
+			
+			private function fnShowScore(e:Event=null):void
+			{
+				m_dealyTimeBatch.reset()
+				m_removeTime.reset();
+				fnRemove();
+				var ar:Array = TiConvertValueToArray.fnConvertValueToArray(m_Score);
+				ar.reverse();
+				var nNextX:int
+				m_index=0
+				m_arNumber =new Array();
+				for( var i:int = 0 ;i< ar.length ; i++)
+				{
+					var mcDamage:damage_number =new damage_number();
+					mcDamage.x = nNextX
+					mcDamage.score.gotoAndStop(int(ar[i])+1);	
+					//scoreGp.addElement(mcDamage);
+					nNextX = nNextX - mcDamage.width
+					m_arNumber.push(mcDamage);
+				}
+				//m_dealyTimeBatch.start();
+				fnShowDamageNumberByBatch();
+				m_removeTime.addEventListener(TimerEvent.TIMER_COMPLETE,fnRemove);
+				m_removeTime.start()
+			}
+			private function fnShowDamageNumberByBatch(e:Event=null):void
+			{
+				if(m_index == m_arNumber.length)
+				{
+					return;
+				}
+				var mcDamage:damage_number = m_arNumber[m_index] 
+				scoreGp.addElement(mcDamage);
+				m_dealyTimeBatch.reset()
+				m_dealyTimeBatch.start()
+				m_index++
+			}
+			
+			private function fnRemove(e:Event = null):void
+			{
+				scoreGp.removeAllElements()
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Group id="scoreGp" scaleX="1" scaleY="1"/>
+</s:Group>

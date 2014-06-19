@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base:TiYellowCube xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" xmlns:base="base.*" xmlns:ui="ui.*" xmlns:local="*" creationComplete="tiyellowcube1_creationCompleteHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import event.TiCubeEvent;
+			
+			import mx.events.FlexEvent;
+			import mx.flash.UIMovieClip;
+			
+			protected function tiyellowcube1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				mcBreak.gotoAndStop(1);
+			}
+			
+			override public function fnPlayBreakAni():void
+			{
+				mcBreak.addEventListener(Event.ENTER_FRAME,fnOnEnterFrame)
+				mcBreak.visible=true;
+				mcCube.visible=false;
+				mcBreak.gotoAndPlay(1);
+			}
+			
+			private function fnOnEnterFrame(e:Event):void
+			{
+				var mc:UIMovieClip = e.currentTarget as UIMovieClip;
+				if(mc.currentFrame == mc.totalFrames)
+				{
+					mcBreak.gotoAndStop(mc.totalFrames);
+					mcBreak.visible=false;
+					mc.removeEventListener(Event.ENTER_FRAME,fnOnEnterFrame);
+					var ev:TiCubeEvent = new TiCubeEvent(TiCubeEvent.CUBE_BREAK_END_EVENT);
+					this.dispatchEvent(ev);
+				}			
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<local:cube_yellow id="mcCube"/>
+	<local:h2_break id="mcBreak" visible="false"/>
+</base:TiYellowCube>

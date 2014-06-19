@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" creationComplete="group1_creationCompleteHandler(event)" xmlns:monster="ui.monster.*">
+	<fx:Script>
+		<![CDATA[
+			import base.TiMonster;
+			
+			import event.TiMonsterEvent;
+			
+			import mx.events.FlexEvent;
+			public var m_mcMonster:TiMonster =new TiMonster();
+			public var m_mcHost:TiMonster =new TiMonster();
+			protected function group1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				mcHost.fnShowtoStage();	
+			}
+			
+			public function fnMonsterAttactCountDown():void
+			{
+				m_mcMonster.fnCountDownAttact();
+			}
+			
+			
+			public function fnShowtoStage(strMonster:String):void
+			{
+				if(strMonster == TiMonsterConfig.MONSTER_SOLIDER)
+				{
+					m_mcMonster = mcSolider
+				}
+				else if(strMonster == TiMonsterConfig.MONSTER_BOSS)
+				{
+					m_mcMonster = mcBoss
+				}
+				m_mcMonster.addEventListener(TiMonsterEvent.MONSTER_SUFFER_FINISH_EVENT,fnSufferFinishHandler);
+				m_mcMonster.addEventListener(TiMonsterEvent.MONSTER_ATTACT_FINISH_EVENT,fnAttactFinishHandler);
+				m_mcMonster.addEventListener(TiMonsterEvent.MONSTER_ATTACT_EVENT,fnMonsterAttactHandler);
+				m_mcMonster.addEventListener(TiMonsterEvent.MONSTER_DIE_FINISH_EVENT,fnDieFinishHandler);
+				m_mcMonster.fnShowtoStage();
+			}
+			
+			public function fnAttackMonster(nValue:int):void
+			{
+				m_mcMonster.fnAttackMonster(nValue);
+				mcHost.fnAttact();
+			}
+			
+			private function fnSufferFinishHandler(e:Event):void
+			{
+				 var ev:TiMonsterEvent = new TiMonsterEvent(TiMonsterEvent.MONSTER_SUFFER_FINISH_EVENT)
+					 dispatchEvent(ev);
+				//m_mcMonster.fnAttact();
+					 
+			}
+			
+			private function fnAttactFinishHandler(e:Event):void
+			{
+				
+			}
+			
+			private function fnDieFinishHandler(e:Event):void
+			{
+				fnShowtoStage(TiMonsterConfig.MONSTER_BOSS)
+			}
+			
+			private function fnMonsterAttactHandler(e:Event):void
+			{
+				mcHost.fnSuffer()
+			}
+				
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<monster:MonsterSolider id="mcSolider" x="100"/>
+	<monster:MonsterBoss id="mcBoss" x="100"/>
+	<monster:MonsterHost id="mcHost" x="-200"/>
+</s:Group>

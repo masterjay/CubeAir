@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" creationComplete="group1_creationCompleteHandler(event)" xmlns:monster="ui.monster.*">
+	<fx:Script>
+		<![CDATA[
+			import event.TiBattleEvent;
+			
+			import mx.events.FlexEvent;
+			
+			import ui.monster.TiMonsterConfig;
+			
+			protected function group1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				monsterCo.addEventListener(TiBattleEvent.MONSTER_ATTACT_EVENT,fnMonsterAttactHandler)
+				monsterCo.addEventListener(TiBattleEvent.MONSTER_DIE_FINISH_EVENT,fnMonsterDieHandler);
+				monsterCo.addEventListener(TiBattleEvent.MONSTER_ATTACT_FINISH_EVENT,fnMonsterAttackFinishHandler);
+				monsterCo.addEventListener(TiBattleEvent.MONSTER_HIT_HOST_EVENT,fnMonsterHitHostHandler);
+				monsterCo.addEventListener(TiBattleEvent.SUCCESS_EVENT,fnSucessHandler);
+				monsterCo.addEventListener(TiBattleEvent.BOSS_STAGE,fnBossStageHander);
+				HostCo.addEventListener(TiBattleEvent.HOST_DIE_FINISH_EVENT,fnHostDieHandler);
+				HostCo.addEventListener(TiBattleEvent.HOST_ATTACT_FINISH_EVENT,fnHostAttackFinishHandler);
+				HostCo.addEventListener(TiBattleEvent.HOST_HIT_MONSTER_EVENT,fnHostHitMonsterHandler);
+			}
+			
+			public function fnShowToStage():void
+			{
+				monsterCo.fnShowToStage();
+				HostCo.fnShowToStage()
+			}
+			
+			public function fnAttackMonster(nValue:int):void
+			{
+				
+				gpA.addElement(monsterCo);
+				gpB.addElement(HostCo);
+				monsterCo.fnSuffer(nValue);
+				HostCo.fnAttack();
+			}
+			
+			private function fnHostAttackFinishHandler(e:TiBattleEvent):void
+			{
+				monsterCo.fnHostAttackFinish();
+			}
+			
+			private function fnMonsterAttactHandler(e:TiBattleEvent):void
+			{
+				gpA.addElement(HostCo);
+				gpB.addElement(monsterCo);
+				HostCo.fnSuffer(e.m_eventArgs);
+			}
+			
+			private function fnMonsterAttackFinishHandler(e:TiBattleEvent):void
+			{
+				HostCo.fnMonsterAttackFinish()
+			}
+			
+			public function fnMonsterAttactCountDownMinus():void
+			{
+				monsterCo.fnMonsterAttactCountDownMinus();
+			} 
+			
+			private function fnMonsterDieHandler(e:TiBattleEvent):void
+			{
+				HostCo.fnMonsterDieLifeHill(e.m_eventArgs)
+			}
+			
+			private function fnHostDieHandler(e:Event):void
+			{
+				var ev:TiBattleEvent =new TiBattleEvent(TiBattleEvent.HOST_DIE_FINISH_EVENT)
+				dispatchEvent(ev);
+			}
+			
+			private function fnHostHitMonsterHandler(e:TiBattleEvent):void
+			{
+				monsterCo.fnHit()
+			}
+			
+			private function fnMonsterHitHostHandler(e:TiBattleEvent):void
+			{
+				HostCo.fnHit()
+			}
+			
+			private function fnSucessHandler(e:TiBattleEvent):void
+			{
+				var ev:TiBattleEvent =new TiBattleEvent(TiBattleEvent.SUCCESS_EVENT)
+					dispatchEvent(ev);
+			}
+			
+			public function fnClear():void
+			{
+				HostCo.fnClearHost();
+				monsterCo.fnClearMonster();
+			}
+			
+			private function fnBossStageHander(e:Event):void
+			{
+				var ev:TiBattleEvent =new TiBattleEvent(TiBattleEvent.BOSS_STAGE)
+					dispatchEvent(ev);
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Group id="gpA"/>
+	<s:Group id="gpB"/>
+	<monster:MonsterCo id="monsterCo" x="0" y="0"/>
+	<monster:HosterCo id="HostCo" x="0" y="0"/>
+	
+</s:Group>

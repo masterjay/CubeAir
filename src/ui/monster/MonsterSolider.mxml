@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base:TiMonster xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:local="*" creationComplete="group1_creationCompleteHandler(event)" xmlns:base="base.*">
+	<fx:Script>
+		<![CDATA[
+			import base.TiDisableTextField;
+			
+			import mx.events.FlexEvent;
+			
+			protected function group1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				var ob:MonsterObject = TiMonsterConfig.fnGetMonster(TiMonsterConfig.MONSTER_SOLIDER);
+				fnInit(mcSoldier,ob.m_nLife,ob.m_nCD,ob.m_nAttatck,ob.m_LifeHill);
+			}
+			
+			
+			override protected function fnCurrentCD(nAttactCDcount:int):void
+			{
+				TiDisableTextField.fnSetText(mcSoldier.txt_cd,"CD "+ nAttactCDcount)
+			}
+			
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		
+	</fx:Declarations>
+	
+	<local:soldier_01 id="mcSoldier"/>
+</base:TiMonster>

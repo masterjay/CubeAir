@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:local="*" preinitialize="group1_creationCompleteHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import base.TiCube;
+			
+			import event.TiCubeEvent;
+			
+			import mx.events.FlexEvent;
+			
+			protected function group1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+			 	 mcYellow.gotoAndStop(1);
+				mcBlue.gotoAndStop(1);
+				mcGreen.gotoAndStop(1);
+				mcPink.gotoAndStop(1);
+				mcRed.gotoAndStop(1);  
+			}
+			
+			public function fnGetUpAni(color:String,ar:Array):void
+			{
+				var mc:MovieClip =new MovieClip();
+				switch(color)
+				{
+					case TiCube.BLUE:
+						mcBlue.visible = true;
+						mc = mcBlue
+						break;
+					case TiCube.RED:
+						mcRed.visible = true;
+						mc = mcRed
+						break;
+					case TiCube.GREEN:
+						mcGreen.visible = true;
+						mc = mcGreen
+						break;
+					case TiCube.PINK:
+						mcPink.visible = true;
+						mc = mcPink
+						break;
+					case TiCube.YELLOW:
+						mcYellow.visible = true;
+						mc = mcYellow
+						break;
+				}
+				fnPlayerAni(mc,ar);
+			}
+			
+			private function fnPlayerAni(mc:MovieClip,ar:Array):void
+			{
+				for(var j:int = 0 ;; j++)
+				{
+					if(mc.score["score"+ (j+1)])
+					{
+						if(j<ar.length)
+						{
+							mc.score["score"+ (j+1)].gotoAndStop(int(ar[j])+1);
+							mc.score["score"+ (j+1)].visible=true;	
+						}
+						else
+						{
+							mc.score["score"+ (j+1)].visible=false;
+						}
+					}
+					else
+					{
+						break;
+					}
+				}
+				mc.addEventListener(Event.ENTER_FRAME,fnPlusEnterFrame);
+				mc.gotoAndPlay(1);
+			}
+			
+			private function fnPlusEnterFrame(e:Event):void
+			{
+				var mc:MovieClip = e.currentTarget as MovieClip
+				if(mc.currentFrame == mc.totalFrames)
+				{
+					mc.gotoAndStop(mc.totalFrames);
+					mc.visible =false;
+					var ev:TiCubeEvent =new TiCubeEvent(TiCubeEvent.CUBE_PLUS_COMPLETE);
+					dispatchEvent(ev);
+				}
+				
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<local:CB_nb_up_Y id="mcYellow" visible="false"/>
+	<local:CB_nb_up_B id="mcBlue" visible="false"/>
+	<local:CB_nb_up_G id="mcGreen" visible="false"/>
+	<local:CB_nb_up_P id="mcPink" visible="false"/>
+	<local:CB_nb_up_R id="mcRed" visible="false"/>
+</s:Group>

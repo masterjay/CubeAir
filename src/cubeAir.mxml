@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark" 
+					   xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:ui="ui.*" applicationComplete="application1_creationCompleteHandler(event)" width="500" height="620" maxWidth="500" maxHeight="620" xmlns:local="*" xmlns:sound="ui.sound.*">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import base.TiBlueCube;
+			import base.TiButtonState;
+			import base.TiCanvas;
+			import base.TiCommonEventDispatcher;
+			import base.TiCube;
+			import base.TiDisableTextField;
+			
+			import event.TiBattleEvent;
+			import event.TiCubeEvent;
+			
+			import flash.net.dns.AAAARecord;
+			
+			import handler.TiVoiceCollector;
+			import handler.cubeRemoveHandler;
+			
+			import mx.core.DragSource;
+			import mx.core.UIComponent;
+			import mx.events.DragEvent;
+			import mx.events.FlexEvent;
+			import mx.events.MoveEvent;
+			import mx.managers.DragManager;
+			
+			import ui.InvisibelCube;
+			import ui.cube.BlueCube;
+			import ui.cube.GreenCube;
+			import ui.cube.PinkCube;
+			import ui.cube.RedCube;
+			import ui.cube.YellowCube;
+			
+			import util.collection.TiHashMap;
+			
+			private var m_Canvas:TiCanvas = new TiCanvas();
+			private var m_cube:TiCube
+			private var ob:Object =new Object();
+			private var minus:Object = new Object();
+			private var m_bSelected:Boolean = false;
+		//	private var m_bMover:Boolean = false;
+			private var m_moveCube:TiCube
+			private var m_SelectedCuebe:TiCube
+			private var m_lastIndex:int = 0	
+			private var hash:TiHashMap =new TiHashMap();
+			private var m_tGameTimer:Timer =new Timer(5000,1)
+			private var ced:TiCommonEventDispatcher = TiCommonEventDispatcher.fnGetInstance(); 
+			private var m_bAlreadChangeCube:Boolean = false;
+			private var m_bs:TiButtonState =new TiButtonState();
+			protected function application1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				fnInitStage();
+				cubeStage.addEventListener(TiCubeEvent.CUBE_MOVE_EVENT,fnCubeMoveHandler);
+				this.addEventListener(MouseEvent.MOUSE_UP,fnMouseUpHandler);
+				cubeStage.addEventListener(TiCubeEvent.CUBE_DOWN_EVENT,fnMouseDownHandler);
+				fnSoundEffectCreate();
+				//TiVoiceCollector.fnPlayOpening();
+				soundOpen.fnSoundDownLoad();
+				//m_tGameTimer.addEventListener(TimerEvent.TIMER_COMPLETE,fnGameTimeUpHandler);
+				ced.addEventListener(TiBattleEvent.ROUND_FINISH_EVENT,fnRoundFinishHandler);
+				
+				TiDisableTextField.fnSetButtonAndDisableAllTextField(mcLanding.btn_start);
+				fnSoundOpening();
+				cubeStage.addEventListener(TiBattleEvent.HOST_DIE_FINISH_EVENT,fnGameOver);
+			}
+			
+			private function fnInitStage():void
+			{
+				cubeStage.fnInit();
+				cubeGp.mouseEnabled=false;
+				cubeGp.mouseChildren=false;
+			}
+			
+			
+			private function fnMouseDownHandler(e:TiCubeEvent):void
+			{
+				if(!cubeStage.m_bEnableMouseUpHandler)
+				{
+					return;
+				}
+				var cube:TiCube =  cubeStage.fnGetMouseClickCube();
+				trace(cube.m_cubeIndex);
+				m_moveCube = cubeStage.fnCreatePhoxyCube(cube.m_cubeColor);
+				cubeGp.addElement(m_moveCube);
+				m_SelectedCuebe = e.m_cube 
+				cubeStage.m_SelectedCuebe = m_SelectedCuebe
+				m_SelectedCuebe.alpha =0
+				m_bSelected = true;
+				cubeStage.m_bSelectedCube = m_bSelected
+				
+			
+				cubeGp.x = cube.x  
+				cubeGp.y = cube.y 
+				
+			}
+			
+			private function fnMouseUpHandler(e:MouseEvent =null):void
+			{
+			 	if(!cubeStage.m_bEnableMouseUpHandler)
+				{
+					return;
+				}
+				cubeStage.m_bEnableMouseUpHandler = false 
+				
+				if(m_SelectedCuebe)
+				{
+					m_SelectedCuebe.m_MouseDown =false;
+					m_SelectedCuebe.m_MouseOver =false;
+					m_SelectedCuebe.alpha =1	
+					m_bSelected = false;
+					cubeStage.m_bSelectedCube = m_bSelected
+					m_SelectedCuebe = null
+					cubeGp.removeAllElements()
+					cubeStage.fnGameTimeStop();
+				}
+				if(m_bAlreadChangeCube)
+				{
+					cubeStage.fnJudgeCube();	
+				}
+				else
+				{
+					cubeStage.m_bEnableMouseUpHandler = true 
+				}
+			}
+			
+			
+			
+			
+			private function fnCubeMoveHandler(e:TiCubeEvent):void
+			{
+				if(!m_bSelected )
+				{
+					return;
+				}
+			
+				var cube:TiCube = cubeStage.fnGetMouseOverCube();
+				if(!cube)
+				{
+					return;
+				}
+				cubeGp.x = e.m_po.x  
+				cubeGp.y = e.m_po.y 
+				fnChangeCube();
+			}
+			
+			
+			private function fnChangeCube():void
+			{
+				var cubeNew:TiCube = cubeStage.fnGetMouseOverCube();
+				if(m_lastIndex ==-1)
+				{
+					m_lastIndex = cubeNew.m_cubeIndex
+				}
+				else
+				{
+					if(m_lastIndex == cubeNew.m_cubeIndex)
+					{
+						return;
+					}
+				}
+				var cubeNewIndex:int = cubeNew.m_cubeIndex
+				m_lastIndex = cubeNewIndex
+				var cubeOld:TiCube = TiStageConst.m_cubeHashMap.getValue(m_SelectedCuebe.m_cubeIndex);
+				var tempOb:Object =new Object();
+				tempOb.x = cubeNew.x
+				tempOb.y = cubeNew.y
+				cubeNew.x = cubeOld.x
+				cubeNew.y = cubeOld.y	
+				cubeOld.x = tempOb.x
+				cubeOld.y = tempOb.y
+				cubeOld.alpha=0;
+				cubeNew.visible=true;
+			
+				
+				cubeStage.stageGp.addElementAt(cubeNew,cubeOld.m_cubeIndex);
+				cubeStage.stageGp.addElementAt(cubeOld,cubeNewIndex);
+				cubeNew.m_MouseOver = false;
+				cubeOld.m_MouseOver = false
+				cubeNew.m_MouseDown = false;
+				cubeOld.m_MouseDown = false
+					
+					
+			 	tempOb.m_cubeIndex = cubeNew.m_cubeIndex
+				cubeNew.m_cubeIndex = cubeOld.m_cubeIndex
+				cubeOld.m_cubeIndex = tempOb.m_cubeIndex	 
+					
+				TiStageConst.m_cubeHashMap.put(cubeOld.m_cubeIndex,cubeOld);
+				TiStageConst.m_cubeHashMap.put(cubeNew.m_cubeIndex,cubeNew);
+				TiVoiceCollector.fnPlaySwapCube();
+				cubeStage.fnGameTimeUiStart();
+				m_bAlreadChangeCube = true;
+			}
+			
+		
+			private function fnSoundEffectCreate():void
+			{
+				TiVoiceCollector.m_SoundSwapCube = new SoundSwap();
+				TiVoiceCollector.m_SoundCubeBreak = new SoundBreak();
+				TiVoiceCollector.m_Soundopening = new opening();
+				TiVoiceCollector.m_Soundonepoint09 =new onepoint09();
+			}
+			
+			private function fnGameTimeUpHandler(e:Event):void
+			{
+				fnMouseUpHandler();
+				fnGameTimeReset();
+			}
+			
+			
+			
+			
+			private function fnRoundFinishHandler(e:TiBattleEvent):void
+			{
+				fnGameTimeReset();
+				cubeStage.m_bEnableMouseUpHandler = true 
+				m_bAlreadChangeCube =false;
+			}
+			
+			private function fnGameTimeReset():void
+			{
+				cubeStage.fnGameTimeUiReset();
+			}
+			
+			private function fnHideLandingPage(e:MouseEvent):void
+			{
+				mcLanding.visible =false;
+				TiVoiceCollector.fnStopPlayOpening();
+				cubeStage.fnGameStartCountDown()
+				soundOpen.fnStopMusic();
+				trace("CLICK")
+			}
+			
+			private function fnSoundOpening():void
+			{
+				m_bs.fnDisableAndDarkMcState(mcLanding.btn_start);
+				mcLanding.btn_start.alpha=0.7
+				var t:Timer =new Timer(5500,1)
+					t.addEventListener(TimerEvent.TIMER_COMPLETE,fnShowGameStartBtn);
+					t.start()
+			}
+			
+			private function fnShowGameStartBtn(e:Event):void
+			{
+				mcLanding.btn_start.addEventListener(MouseEvent.CLICK,fnHideLandingPage)
+				mcLanding.btn_start.addEventListener(MouseEvent.CLICK,fnHideLandingPage)
+				m_bs.fnEnableMcState(mcLanding.btn_start);
+				mcLanding.btn_start.alpha=1
+			}
+			
+			private function fnGameOver(e:TiBattleEvent):void
+			{
+				
+			}
+		]]>
+	</fx:Script>
+	<ui:cubeStage id="cubeStage" />
+	<s:Group id="cubeGp" />
+	<!--<local:game_time id="mcGameTime" x="0" y="0"/>-->
+	<local:landing_page id="mcLanding"/>
+	<sound:GameOpenSound id="soundOpen"/>
+</s:WindowedApplication>

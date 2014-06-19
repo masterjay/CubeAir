@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base:TiHost xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:base="base.*" creationComplete="timonster1_creationCompleteHandler(event)" xmlns:local="*">
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			protected function timonster1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				fnInit(mcHost,1,30);
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<local:me_01 id="mcHost"/>
+</base:TiHost>

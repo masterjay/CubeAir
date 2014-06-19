@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base:TiLife xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" creationComplete="group1_creationCompleteHandler(event)" xmlns:local="*" xmlns:base="base.*">
+	<fx:Script>
+		<![CDATA[
+			import base.TiConvertValueToArray;
+			
+			import mx.events.FlexEvent;
+			
+			protected function group1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				mcLife.score1.gotoAndStop(11);
+				mcLife.score2.gotoAndStop(11);
+				mcLife.score3.gotoAndStop(11);
+				mcLife.score4.gotoAndStop(11);
+				mcLife.score5.gotoAndStop(11);
+				mcLife.org_score1.gotoAndStop(11);
+				mcLife.org_score2.gotoAndStop(11);
+				mcLife.org_score3.gotoAndStop(11);
+				mcLife.org_score4.gotoAndStop(11);
+				mcLife.org_score5.gotoAndStop(11);
+			}
+			
+			public function fnInitLife(lifePoint:int,bUseQuestion:Boolean):void
+			{
+				fnInit(mcLife,lifePoint,bUseQuestion);
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<local:life_left id="mcLife" x="0" y="0"/>
+</base:TiLife>
